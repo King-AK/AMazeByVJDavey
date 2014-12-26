@@ -1,0 +1,64 @@
+package edu.wm.cs.cs301.amazebyvjdavey;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
+import android.widget.*;
+
+public class GeneratingActivity extends Activity {
+	ProgressBar pb;
+	int progress = 0;
+	Handler h = new Handler();
+	private static final String LOGTAG = "GeneratingActivity";
+	
+	//creates a simple spinning progress bar 
+	//for now the progress bar just spins for a preset amount of time, once falstad code is ported, it will spin as long as the maze is generating
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_generating);
+		
+		pb =(ProgressBar)findViewById(R.id.progressBar1);
+		new Thread(new Runnable(){
+			
+			@Override
+			public void run() {
+				for (int i = 0; i < 5; i++) {
+					progress+=20;
+					h.post(new Runnable() {
+						
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+						pb.setProgress(progress);
+						if(progress == 100){
+							Intent intent = new Intent(GeneratingActivity.this, PlayActivity.class);
+							GeneratingActivity.this.startActivity(intent);
+							Log.v(LOGTAG, "Switch to PlayActivity");
+							GeneratingActivity.this.finish();
+							Log.v(LOGTAG, "Generating Activity finished");
+						}
+						}
+					});
+					try { 
+						Thread.sleep(1000);
+					}catch (Exception e){
+						
+					}
+				}
+			}
+		}).start();
+	
+	}
+	
+	//generating activity will switch to the play activity 
+	//screen once the loading has completed.
+	//Do this manually now, and when falstad code is ported
+	//do this automatically
+	
+	
+	
+
+}

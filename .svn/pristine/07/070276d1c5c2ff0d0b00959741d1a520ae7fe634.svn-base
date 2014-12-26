@@ -1,0 +1,160 @@
+/**
+ * 
+ */
+package falstad;
+import java.util.Observable;
+import java.util.Observer;
+
+
+/**
+ * The ManualDriver implements the RobotDriver interface. This class is responsible for all the methods outlined in the RobotDriver interface.
+ * This driver will collect sensory information on the maze environment from the Robot. With this sensory information, the ManualDriver will make use of 
+ * some search algorithm to drive the robot out of the maze. All facets of transportation will be done without the RobotDriver/MazeDriver ever DIRECTLY 
+ * communicating with its maze environment.  
+ * 
+ * <As of Project 3, the search algorithm is not specified or implemented, but the code base should be ready for its insertion in a future edition.>
+ * 
+ * The driver however, WILL communicate with the Maze class in regards to the keyDown method events. The driver will have a subscription to the results of 
+ * that method, and if that method is returning any results(meaning: there is user input for movement in the maze) the driver should stop its processes, and 
+ * the user should be able to control the robot manually.
+ *  
+ * Ultimately, the goal is to make this class an OBSERVER of the Maze.java class, subscribed to updates of the keyDown method.
+ * 
+ * Manual Driver is a concrete observer of the Maze class, the subject...
+ * @author VJ
+ *
+ */
+public class ManualDriver implements RobotDriver, Observer {
+	//fields
+	Robot robot;
+	Robot.Direction direction;
+	private boolean ObservedObjectState; 
+	private int height;
+	private int width;
+	private Distance distance;
+	private Maze maze;
+	private int steps;
+	private Sensor sensor;
+	int solver;
+	MazeSolverAlgorithm algorithm;
+	/**
+	 * 
+	 */
+	public ManualDriver(int driver) {
+		solver = driver;
+		robot = null;//no robot is assigned until setRobot is called
+		steps = 0;
+		ObservedObjectState = false;
+	}
+	/**
+	 * the robot driver is given a number. This number corresponds to 1 of 4 possible choices
+	 * for a solver algorithm
+	 * @param num
+	 */
+	public void setSolver(int num){
+		solver = num;
+	}
+
+	/**
+	 * A Robot object is taken control of by the robot driver!
+	 */
+	@Override
+	public void setRobot(Robot r) throws UnsuitableRobotException {
+		robot = r;//sets the driver to control the Robot r. Lets give him a brain. Should throw an exception if a Robot is unsuitable( no battery power and no sensors)
+		
+		if(r == null){ throw new UnsuitableRobotException();}
+	}
+	public void acceptMaze(Maze maze){
+		this.maze = maze;
+	}
+	
+	/**
+	 * Required by the Observer interface. Receives notifications from the Maze class when a directional key is called during game play.
+	 * Breaks/Overrides the drive2Exit method if the state of the object has changed sufficiently.
+	 * @param o
+	 * @param arg
+	 */
+	@Override
+	public void update(Observable o, Object arg) {
+		if(o.hasChanged()){ObservedObjectState = true;}
+			}
+	/**
+	 * provides the driver with information on the size of the maze
+	 */
+	@Override
+	public void setDimensions(int width, int height) {
+		this.width = width;
+		this.height = height;
+
+	}
+
+	/**
+	 * provides the driver with information regarding the distance to the Exit of the maze!
+	 */
+	@Override
+	public void setDistance(Distance distance) {
+		this.distance = distance;
+
+	}
+
+	/**
+	 * gives the robot instructions on how to exit the maze! Overrided if the boolean condtion of the Objects State has changed(keyDown was called).
+	 */
+	@Override
+	public boolean drive2Exit() throws Exception {
+		//will import a mazeSolver algorithm based on a method selction from the user. This selection is a key entry from the user in the keydown method
+		//prior to game play
+		//edit code such that the solvers are actually observers. They break, and their break leads to the break in this class.
+		
+			boolean solveable = false;
+			switch(solver){
+			
+			case 1://run Gambler(random mouse) algorithm
+				algorithm = new Gambler();
+				algorithm.solve(robot, sensor);
+				break;
+			case 2://run WallFollower algorithm
+				algorithm = new WallFollower();
+				algorithm.solve(robot, sensor);
+				break;
+			case 3: // run Tremaux algorithm
+				algorithm = new Tremaux();
+				algorithm.solve(robot, sensor);
+				break;
+			case 4://run Wizard algorithm
+				algorithm = new Wizard();
+				algorithm.solve(robot, sensor);
+				break;
+				
+			}
+			solveable = algorithm.reachedExit();
+			return solveable;
+		
+	}
+		
+	
+
+	/**
+	 * returns information on how much of the battery has been used on the robots journey!
+	 */
+	@Override
+	public float getEnergyConsumption() {
+		//method set to return the total amount of battery which has been drained through the Robot's trip so far. (Out of 2500).
+		return (2500  - robot.getBatteryLevel());
+			
+	}
+
+	/**
+	 * returns how many steps the robot has taken so far!
+	 */
+	@Override
+	public int getPathLength() {
+		return steps;
+	}
+	
+	public void setSensor(Sensor sensor){
+		this.sensor = sensor;
+	}
+
+
+}

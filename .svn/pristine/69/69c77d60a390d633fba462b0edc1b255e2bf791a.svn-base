@@ -1,0 +1,459 @@
+/**
+ * Sensor class for the Basic Robot
+ */
+package falstad;
+
+/**
+ * Sensor for the robot. Acts as a universal 4 direction sensor. Can also sense
+ * whether or not the robot is inside of a room and if the robot is at a junction.
+ * 
+ * In the case that the sensor need to be limited in its abilities to simulate 
+ * the robot having less than 4 directional sensors, the boolean "sensors" of the
+ * robot will be set false in the Basic Robot class, limiting their function in this class.
+ * @author VJ
+ *
+ */
+public class Sensor {
+	int currentDegree;
+	public Maze maze;
+	Cells mazecells;
+	Robot robot;
+	
+	/**
+	 * Constructor for the sensor object
+	 * @param maze
+	 * @param robot
+	 */
+	
+	public Sensor(Maze maze,Robot robot){
+		this.maze = maze;
+		this.robot = robot;
+		mazecells = maze.mazecells;
+	}
+	
+	/**
+	 * This tells if the current position is part of a room
+	 * @return
+	 */
+	public boolean roomSense(){
+		int px = maze.getPos()[0];
+		int py = maze.getPos()[1];
+		return mazecells.isInRoom(px, py);
+	}
+	/**
+	 * this tells if the current position is part of a junction. 
+	 * A junction is where two paths meet. This means the lack of a wall to the 
+	 * front, left or right simultaneously between either two or all three of those choices.
+	 * Anything else would either be a straight path, inside a room, or a dead end.
+	 * @return
+	 */
+	public boolean junctionSense(){
+		if(distanceToObstacleOnLeft()>0 && distanceToObstacleAhead()>0){
+			return true;
+		}
+		else if(distanceToObstacleOnRight()>0 && distanceToObstacleAhead()>0){
+			return true;
+		}
+		else if(distanceToObstacleAhead()>0 && distanceToObstacleOnRight()>0 && distanceToObstacleOnLeft()>0){
+			return true;
+		}
+		else if(distanceToObstacleOnRight()>0 && distanceToObstacleOnLeft()>0){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	
+	/**
+	 * This tells the distance to the obstacle i.e. wall ahead
+	 * @throws Exception 
+	 */
+	public int distanceToObstacleAhead(){
+		int mask = getMask(robot.getCurrentDirection(), "Ahead");
+		int px = maze.getPos()[0];
+		int py = maze.getPos()[1];
+		String looking = "0";
+		if (robot.getCurrentDirection()[0] == 0){
+			if (robot.getCurrentDirection()[1] == 1){
+				looking = "north";
+			}
+			else{
+				looking = "south";
+			}
+		}
+		else if (robot.getCurrentDirection()[0] == 1){
+			looking = "east";
+		}
+		else if (robot.getCurrentDirection()[0] == -1){
+			looking = "west";
+		}
+		
+		int count = 0; 
+	
+
+		while( (px>=0 && px<=maze.mazew-1 && py>=0 && py<=maze.mazeh-1) &&(!((mazecells.getValueOfCell(px, py)&mask)==0))  ){
+			
+			if (looking == "north"){
+				//go north one cell 
+				py += 1;
+			}
+			else if (looking == "east"){
+				//go east one cell
+				px += 1;
+			}
+			else if (looking == "south"){
+				//go south one cell
+				py -= 1;
+			}
+			else if (looking == "west"){
+				//go west one cell
+				px -= 1;
+			}
+			count ++;
+		}
+		
+		if (!(px>=0 && px<=maze.mazew-1 && py>=0 && py<=maze.mazeh-1)){
+			return Integer.MAX_VALUE;
+		}
+		return count;
+	}
+	/**
+	 * This tells the distance to the obstacle i.e. wall on the left
+	 * @throws Exception 
+	 */
+
+	public int distanceToObstacleOnLeft(){
+		int mask = getMask(robot.getCurrentDirection(), "Left");
+		int px = maze.getPos()[0];
+		int py = maze.getPos()[1];
+		String looking = "0";
+		if (robot.getCurrentDirection()[0] == 0){
+			if (robot.getCurrentDirection()[1] == 1){
+				looking = "north";
+			}
+			else{
+				looking = "south";
+			}
+		}
+		else if (robot.getCurrentDirection()[0] == 1){
+			looking = "east";
+		}
+		else if (robot.getCurrentDirection()[0] == -1){
+			looking = "west";
+		}
+		
+		int count = 0; 
+		while( (px>=0 && px<=maze.mazew-1 && py>=0 && py<=maze.mazeh-1) &&(!((mazecells.getValueOfCell(px, py)& mask)==0))  ){
+			
+			if (looking == "north"){
+				//go west
+				px -= 1;
+			}
+			else if (looking == "east"){
+				//go north
+				py += 1;
+			}
+			else if (looking == "south"){
+				//go east
+				px += 1;
+			}
+			else if (looking == "west"){
+				//go south
+				py -= 1;
+			}
+			count ++;
+		}
+		
+		if (!(px>=0 && px<=maze.mazew-1 && py>=0 && py<=maze.mazeh-1)){
+			return Integer.MAX_VALUE;
+		}
+		return count;
+	}
+
+	/**
+	 * This tells the distance to the obstacle i.e. wall on right.
+	 * @throws Exception 
+	 */
+	public int distanceToObstacleOnRight(){
+		int mask = getMask(robot.getCurrentDirection(), "Right");
+
+		int px = maze.getPos()[0];
+		int py = maze.getPos()[1];
+		String looking = "0";
+		if (robot.getCurrentDirection()[0] == 0){
+			if (robot.getCurrentDirection()[1] == 1){
+				looking = "north";
+			}
+			else{
+				looking = "south";
+			}
+		}
+		else if (robot.getCurrentDirection()[0] == 1){
+			looking = "east";
+		}
+		else if (robot.getCurrentDirection()[0] == -1){
+			looking = "west";
+		}
+		
+		int count = 0; 
+		while( (px>=0 && px<=maze.mazew-1 && py>=0 && py<=maze.mazeh-1) &&(!((mazecells.getValueOfCell(px, py)& mask)==0))  ){
+			
+			if (looking == "north"){
+				//go east
+				px += 1;
+			}
+			else if (looking == "east"){
+				//go south
+				py -= 1;
+			}
+			else if (looking == "south"){
+				//go west
+				px -= 1;
+			}
+			else if (looking == "west"){
+				//go north
+				py += 1;
+			}
+			count ++;
+		}
+		
+		if (!(px>=0 && px<=maze.mazew-1 && py>=0 && py<=maze.mazeh-1)){
+			return Integer.MAX_VALUE;
+		}
+		return count;
+	}
+
+	/**
+	 * This tells the distance to the obstacle i.e. wall behind.
+	 * @throws Exception 
+	 */
+	public int distanceToObstacleBehind(){
+		int mask = getMask(robot.getCurrentDirection(), "Behind");
+		int px = maze.getPos()[0];
+		int py = maze.getPos()[1];
+		String looking = "0";
+		if (robot.getCurrentDirection()[0] == 0){
+			if (robot.getCurrentDirection()[1] == 1){
+				looking = "north";
+			}
+			else{
+				looking = "south";
+			}
+		}
+		else if (robot.getCurrentDirection()[0] == 1){
+			looking = "east";
+		}
+		else if (robot.getCurrentDirection()[0] == -1){
+			looking = "west";
+		}
+		
+		int count = 0; 
+		while( (px>=0 && px<=maze.mazew-1 && py>=0 && py<=maze.mazeh-1) &&(!((mazecells.getValueOfCell(px, py)&mask)==0))  ){
+			
+			if (looking == "north"){
+				//go south
+				py -= 1;
+			}
+			else if (looking == "east"){
+				//go west
+				px -= 1;
+			}
+			else if (looking == "south"){
+				//go north
+				py += 1;
+			}
+			else if (looking == "west"){
+				//go east
+				px += 1;
+			}
+			count ++;
+		}
+		
+		if (!(px>=0 && px<=maze.mazew-1 && py>=0 && py<=maze.mazeh-1)){
+			return Integer.MAX_VALUE;
+		}
+		return count;
+	}
+
+	private int getMask(int[] dir, String sense){
+		int maskNorth = 1;
+		int maskSouth = 2;
+		int maskWest = 4;
+		int maskEast = 8;
+		String looking = "0";
+		if (dir[0] == 0){
+			if (dir[1] == 1){
+				looking = "north";
+			}
+			else{
+				looking = "south";
+			}
+		}
+		else if (dir[0] == 1){
+			looking = "east";
+		}
+		else if (dir[0] == -1){
+			looking = "west";
+		}
+		
+		if (sense == "Ahead"){
+			if (looking == "north"){
+				return maskNorth;
+			}
+			else if (looking == "east"){
+				return maskEast;
+			}
+			else if (looking == "south"){
+				return maskSouth;
+			}
+			else if (looking == "west"){
+				return maskWest;
+			}
+		}
+		
+		
+		
+		else if (sense == "Behind"){
+			if (looking == "north"){
+				return maskSouth;
+			}
+			else if (looking == "east"){
+				return maskWest;
+			}
+			else if (looking == "south"){
+				return maskNorth;
+			}
+			else if (looking == "west"){
+				return maskEast;
+			}
+		}
+		
+		else if (sense == "Left"){
+			if (looking == "north"){
+				return maskWest;
+			}
+			else if (looking == "east"){
+				return maskNorth;
+			}
+			else if (looking == "south"){
+				return maskEast;
+			}
+			else if (looking == "west"){
+				return maskSouth;
+			}
+		}
+		
+		else if (sense == "Right"){
+			if (looking == "north"){
+				return maskEast;
+			}
+			else if (looking == "east"){
+				return maskSouth;
+			}
+			else if (looking == "south"){
+				return maskWest;
+			}
+			else if (looking == "west"){
+				return maskNorth;
+			}
+		}
+		
+	
+		
+		return 0;
+	}
+
+
+	/**
+	 * This tells whether the robot can see the goal ahead.
+	 * @return whether the robot can see the goal ahead
+	 * @throws Exception 
+	 */
+	public boolean canSeeGoalAhead(){
+		if(distanceToObstacleAhead() == Integer.MAX_VALUE){
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * This tells if the robot can see the goal behind it.
+	 * @return whether the robot can see the goal behind it
+	 * @throws Exception 
+	 */
+	
+	public boolean canSeeGoalBehind(){
+		if(distanceToObstacleBehind() == Integer.MAX_VALUE){
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * This tells whether the robot can see the goal on the left.
+	 * @return whether the robot can see the goal on the left
+	 * @throws Exception 
+	 */
+	public boolean canSeeGoalOnLeft() {
+		if(distanceToObstacleOnLeft() == Integer.MAX_VALUE){
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * This tells whether the robot can see the goal on the right.
+	 * @return whether the robot can see the goal on the right. 
+	 */
+	public boolean canSeeGoalOnRight(){
+		if(distanceToObstacleOnRight() == Integer.MAX_VALUE){
+			return true;
+		}
+		return false;
+	}
+	
+	boolean check(int angle, int dir){
+		int a = angle/90;
+		if (dir == -1)
+			a = (a+2) & 3;
+		return mazecells.hasMaskedBitsFalse(maze.px, maze.py, Constants.MASKS[a]) ;
+	}
+	
+	
+	public boolean wallSenseAhead(){
+		return maze.wallCheck(1);
+	}
+	public boolean wallSenseBehind(){
+		return maze.wallCheck(-1);
+	}
+	public boolean wallSenseLeft(){
+		int angle = maze.getAngle();
+		angle=(angle+1800)%360;
+		return check(angle, -1);	
+		}
+	public boolean wallSenseRight(){
+		int angle = maze.getAngle();
+		angle=(angle+1800)%360;
+		return check(angle, 1);	
+	}
+	public int angleSense(){
+		return maze.getAngle();
+	}
+	public Maze getMaze(){
+		return maze;
+	}
+	//method for use with Tremaux
+	public boolean canStepForward() throws Exception{
+		int px = robot.getCurrentPosition()[0];
+		int py = robot.getCurrentPosition()[1];
+		int dx = robot.getCurrentDirection()[0];
+		int dy = robot.getCurrentDirection()[1];
+
+		return mazecells.hasMaskedBitsTrue(px+dx, py+dy, Constants.CW_VISITED);
+	}
+
+
+
+
+}

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu 
+    xmlns:android="http://schemas.android.com/apk/res/android" 
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="edu.wm.cs.cs301.amazebyvjdavey.PlayActivity">
+    <item 
+        android:id="@+id/maze" 
+        android:title="maze" 
+        app:showAsAction="ifRoom"
+        android:onClick="showMaze"/>
+    <item 
+        android:id="@+id/solution" 
+        android:title="solution" 
+        app:showAsAction="ifRoom"
+        android:onClick="showSolution"/>
+    <item 
+        android:id="@+id/visible_walls" 
+        android:title="walls"
+        app:showAsAction="ifRoom"
+        android:onClick="showWalls"/>
+    
+
+</menu>

@@ -1,0 +1,13 @@
+package falstad;
+
+import android.app.Activity;
+
+public class globals {
+
+	public static Maze maze;
+	
+	public static void createMaze(Activity a){
+		maze = new Maze();
+	}
+	
+}

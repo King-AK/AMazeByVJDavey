@@ -1,0 +1,120 @@
+/**
+ * 
+ */
+package falstad;
+
+/**
+ * Tremaux Algorithm for solving a maze, basically a depth first search
+ * @author VJ
+ *
+ */
+public class Tremaux implements MazeSolverAlgorithm {
+
+	/**
+	 * the robot is directed out of the maze making use of Tremaux's algorithm, 
+	 * more or less a depth first search on the maze. Consider a new version of the left wall follower, however it 
+	 * prefers to go to unvisited cells, and wallfollows second.
+	 * @throws Exception 
+	 */
+	private Cells cells;
+	private Sensor sensor;
+	private Robot robot;
+	@Override
+	public void solve(Robot robot, Sensor sensor) throws Exception {
+		cells = sensor.getMaze().mazecells;
+		this.sensor = sensor;
+		this.robot = robot;
+		while(!robot.isAtGoal()){
+			if(robot.hasStopped()){//if the robot has stopped, it cannot drive to the exit
+				break;//loop breaks
+			}
+			
+			//check all nearby cells
+			boolean a = sensor.wallSenseAhead();
+			boolean aUnVisited = sensor.canStepForward();
+			robot.rotate(Robot.Turn.LEFT);
+			boolean l = sensor.wallSenseAhead();
+			boolean lUnVisited = sensor.canStepForward();
+			robot.rotate(Robot.Turn.AROUND);
+			boolean r = sensor.wallSenseAhead();
+			boolean rUnVisited = sensor.canStepForward();
+			robot.rotate(Robot.Turn.LEFT);
+			
+			//if we are at a junction
+			if(sensor.junctionSense()){
+			//if the cell to the left has no wall and the right neighbor cell is unvisited, turn right and step forward.
+			if ((l) ){
+				
+			}
+			//else if the cell to your front has not wall and has not been visited, step forward
+			//else if the cell to the left has no wall and is unvisted, turn left and step forward
+			}
+			//if not at a junction, turn if necessary, and step forward
+			else if(!sensor.junctionSense() &&  (a)){
+				robot.move(1);
+			}
+			else if(!sensor.junctionSense() && (l)){
+				robot.rotate(Robot.Turn.LEFT);
+				robot.move(1);
+			}
+			else if(!sensor.junctionSense() && (r)){
+				robot.rotate(Robot.Turn.RIGHT);
+				robot.move(1);
+			}
+			//if anything else, we are at a dead end. we will wallfollow back to the last junction. 
+			//use an unused direction from a list of available directions at this junction
+			else{
+				wallFollow();
+			}
+		
+		//the current cell should be marked as visited
+		//for all neighbor cells which are accessible from the current cell
+			//if that neighbor cell is not marked as visited
+				//call a DFS on that cell
+			
+		//can either be done recursively or with a stack which keeps track of cells in the queue
+		//Needs reworking such that the robot knows to return to a certain cell if the DFS fails
+		//use junctions instead of cells... recursively return to junction if dfs fails, turn and dfs again
+		//in unexplored directions. if all directions have been explored, go back a junction. Maze is unsolveable if you get back to the starting point with no more junctions.
+	}
+	}
+	public void wallFollow() throws Exception{
+		boolean a;
+		boolean l;
+		//while the robot is not at its previous junction
+		while(!sensor.junctionSense()){
+		//check left and ahead
+		a = sensor.wallSenseAhead();
+		robot.rotate(Robot.Turn.LEFT);
+		l = sensor.wallSenseAhead();	
+		robot.rotate(Robot.Turn.RIGHT);
+		
+		//if there is no wall to your left, turn left and step ahead
+		if((l)&&(!a)){
+			robot.rotate(Robot.Turn.LEFT);
+			robot.move(1);
+		}
+		//if there is no wall to the left or ahead, turn left and step ahead
+		else if((l)&&(a)){
+			robot.rotate(Robot.Turn.LEFT);
+			robot.move(1);
+		}
+		//if there is a wall to the left, and no wall ahead, step ahead
+		else if((!l)&&(a)){
+			robot.move(1);
+		}
+		//if there is a wall to the left, and a wall ahead, turn right
+		else if ((!l)&&(!a)){
+			robot.rotate(Robot.Turn.RIGHT);
+		}
+	}
+	}
+	@Override
+	public boolean reachedExit() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+
+}

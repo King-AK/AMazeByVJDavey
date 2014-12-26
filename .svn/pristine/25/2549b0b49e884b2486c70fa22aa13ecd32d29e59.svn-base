@@ -1,0 +1,91 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_margin="@dimen/activity_horizontal_margin"
+    android:paddingTop="100dp"
+    android:gravity="center_horizontal"
+    android:orientation="vertical" >
+
+ <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/title"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+ <TextView
+     android:id="@+id/textView2"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:text="@string/skill" />
+
+ <SeekBar
+     android:id="@+id/seekBar1"
+     android:layout_width="325dp"
+     android:layout_height="wrap_content"
+     android:progress="0" />
+
+ <TextView
+     android:id="@+id/textView4"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:text="0/15" />
+
+ <RelativeLayout
+     android:layout_width="match_parent"
+     android:layout_height="wrap_content" >
+
+     <Spinner
+         android:id="@+id/spinner1"
+         android:layout_width="130dp"
+         android:layout_height="wrap_content"
+         android:layout_alignParentRight="true"
+         android:layout_alignParentTop="true" />
+
+     <TextView
+         android:id="@+id/textView3"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_alignParentLeft="true"
+         android:layout_centerVertical="true"
+         android:layout_weight="1"
+         android:text="@string/maze_gen" />
+
+ </RelativeLayout>
+
+ <RelativeLayout
+     android:layout_width="match_parent"
+     android:layout_height="wrap_content" >
+
+     <Spinner
+         android:id="@+id/Spinner01"
+         android:layout_width="130dp"
+         android:layout_height="wrap_content"
+         android:layout_alignParentRight="true"
+         android:layout_alignParentTop="true" />
+
+     <TextView
+         android:id="@+id/TextView01"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_alignParentLeft="true"
+         android:layout_centerVertical="true"
+         android:layout_weight="1"
+         android:text="@string/rob_dri" />
+
+ </RelativeLayout>
+
+ <CheckBox
+     android:id="@+id/checkBox1"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:text="Load Maze From File" />
+
+ <Button
+     android:id="@+id/button1"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:text="@string/start_button"
+     android:onClick="gotoActivity" />
+
+</LinearLayout>

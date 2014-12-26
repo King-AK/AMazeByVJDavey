@@ -1,0 +1,59 @@
+package ui;
+
+import edu.wm.cs.cs301.amazebyvjdavey.R;
+import falstad.Maze;
+import falstad.MazePanel;
+import falstad.globals;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
+import android.widget.*;
+
+@SuppressLint("HandlerLeak")
+public class GeneratingActivity extends Activity {
+	public Maze maze;
+	Thread t;
+	GeneratingActivity gen = this;
+	
+	ProgressBar pb;
+	int progress = 0;
+	
+	public Handler handler = new Handler(){
+		@Override
+		public void handleMessage(Message message) {
+			Log.v(LOGTAG, "handler called");
+			startPlay();
+			gen.finish();
+		}
+	};
+	private static final String LOGTAG = "GeneratingActivity";
+	
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		maze = globals.maze;
+		maze.gen = this;
+		
+		int mazebuildAlgorithm = (Integer) getIntent().getSerializableExtra("mazebuilderAlgorithm");
+		int driverAlgorithm = (Integer) getIntent().getSerializableExtra("driverAlgorithm");
+		int skill = (Integer) getIntent().getSerializableExtra("skill");
+		
+		setContentView(R.layout.activity_generating);
+		pb =(ProgressBar)findViewById(R.id.progressBar1);
+		Log.v(LOGTAG, "taken the parameters in");
+		maze.setDriver(0);//switch this to properly implement robot drivers
+		maze.setMethod(mazebuildAlgorithm);
+		maze.setSkill(skill);
+		maze.androidMazeBuilder(skill);
+		
+	}
+	public void startPlay(){
+		Intent play = new Intent(this, PlayActivity.class);
+		startActivity(play);
+	}
+}

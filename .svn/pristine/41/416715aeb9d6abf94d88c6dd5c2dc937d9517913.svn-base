@@ -1,0 +1,155 @@
+/**
+ * 
+ */
+package falstad;
+
+/**
+ * The cheater's method of solving a maze.
+ * @author VJ
+ *
+ */
+public class Wizard implements MazeSolverAlgorithm {
+
+	/**
+	 * Reads the distance matrix of the maze to give the Robot an
+	 * Omniscient view of its environment. It gets out without any real effort.
+	 * Should continually call methods of the Distance class to ultimately find the closest 
+	 * nearby cell which is the least distance from the exit compared to all other cells it has access to.
+	 */
+	private Distance dist;
+	boolean solved = false;
+	private Maze maze;
+	
+	@Override
+	public void solve(Robot robot, Sensor sensor) throws Exception {
+		
+		maze = sensor.getMaze();
+		dist = maze.mazedists;
+
+		int adist,ldist,rdist;//integers meant to keep track of the distance of cells relative to the current cell
+		boolean a , l , r;//boolean values for ahead, left, and right choices
+		while (!robot.isAtGoal()){//while the robot is not at the goal
+			
+			
+			a=l=r=false;//set all to false as default
+			adist=ldist=rdist=99999999;//arbitrary number much larger than the size of any maze
+			
+			if(robot.hasStopped()){//if the robot has stopped, it cannot drive to the exit
+				break;//loop breaks
+			}
+			
+			int count = 0;//keeps track of how many viable directions the robot can travel in
+			
+			//the robot should check ahead,left, and right for walls, switching the value of the direction to true if no wall exists, and ending in its starting position
+			a = sensor.wallSenseAhead();
+			if(a){//if there is no wall ahead
+				int[] curDir = robot.getCurrentDirection();//pull the current direction
+				int[] Pos = robot.getCurrentPosition();//pull the current position
+				if(dist.isExitPosition(Pos[0], Pos[1])&&sensor.wallSenseAhead()){
+					robot.move(1);
+				}
+				adist = dist.getDistance( Pos[0], Pos[1]);//determine how far away from the exit the cell ahead of you is
+				count++;//increment the counter
+				}
+			robot.rotate(Robot.Turn.LEFT);//turn left (now facing left of the original direction)
+			l = sensor.wallSenseAhead();
+			if(l){
+				int[] curDir = robot.getCurrentDirection();
+				int[] Pos = robot.getCurrentPosition();
+				if(dist.isExitPosition(Pos[0], Pos[1])&&sensor.wallSenseAhead()){
+					robot.move(1);
+				}
+				ldist = dist.getDistance(curDir[0] + Pos[0], curDir[1] + Pos[1]);
+				count++;
+				}
+			robot.rotate(Robot.Turn.AROUND);//turn around (now facing right of the original direction)
+			r = sensor.wallSenseAhead();
+			if(r){
+				int[] curDir = robot.getCurrentDirection();
+				int[] Pos = robot.getCurrentPosition();
+				if(dist.isExitPosition( Pos[0], Pos[1])&&sensor.wallSenseAhead()){
+					robot.move(1);
+				}
+				rdist = dist.getDistance(curDir[0] + Pos[0], curDir[1] + Pos[1]);
+				count++;
+				}
+			robot.rotate(Robot.Turn.LEFT);//turn left (now facing the original direction)
+			//if walls were found to exist in all three directions, the robot should turn around 180 degrees as it is at a dead end. 
+			//the loop should continue to its next iteration
+			if(!a && !l && !r) {
+				robot.rotate(Robot.Turn.AROUND);
+				continue;
+			}
+		
+			if(count == 3){//if there is an open choice for movement in all three directions
+				
+				int min = Math.min(adist, Math.min(rdist, ldist));//find the minimal distance of all three choices
+				if(min == rdist) {//turn right and step forward if the minimal distance is to the right
+					robot.rotate(Robot.Turn.RIGHT);
+					robot.move(1);
+				}
+				else if(min == ldist){//turn left and step forward if the minimal distance is to the left
+					robot.rotate(Robot.Turn.LEFT);
+					robot.move(1);
+				}
+				else{//otherwise, step ahead
+					robot.move(1);
+					}	
+			}
+			if(count == 2) {//if there is an open choice for movement in two directions, we have three possible outcomes
+				if(a && l){//open movement ahead and to the left
+					int min = Math.min(adist, ldist);
+					if(min == ldist){
+						robot.rotate(Robot.Turn.LEFT);
+						robot.move(1);
+					}
+					else{
+						robot.move(1);
+					}
+				}
+				else if(a && r) {//open movement ahead and to the right
+					int min = Math.min(adist, rdist);
+					if(min == rdist){
+						robot.rotate(Robot.Turn.RIGHT);
+						robot.move(1);
+					}
+					else{
+						robot.move(1);
+					}
+				}
+				else {//otherwise we have open movement to the right and to the left
+					int min = Math.min(ldist, rdist);
+					if(min == rdist){
+						robot.rotate(Robot.Turn.RIGHT);
+						robot.move(1);
+					}
+					else{
+						robot.rotate(Robot.Turn.LEFT);
+						robot.move(1);
+					}
+				}
+			}
+			if (count==1){//if there is open movement in only one direction, step in that direction.
+				if(a){
+					robot.move(1);
+				}
+				if(l){
+					robot.rotate(Robot.Turn.LEFT);
+					robot.move(1);
+				}
+				if(r){
+					robot.rotate(Robot.Turn.RIGHT);
+					robot.move(1);
+				}
+			}	
+		}
+		if(robot.isAtGoal()){solved = true;}
+	}
+
+	@Override
+	public boolean reachedExit() {
+		return solved;
+	}
+
+	
+}

@@ -1,0 +1,34 @@
+package ui;
+
+import edu.wm.cs.cs301.amazebyvjdavey.R;
+import android.app.Activity;
+import android.os.Bundle;
+import android.widget.TextView;
+
+public class FinishActivity extends Activity {
+
+	TextView batteryInfo;
+	TextView stepsInfo;
+	TextView comments;
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		int stepsTaken = (Integer) getIntent().getSerializableExtra("stepsTaken");
+		int batteryUsed = (Integer) getIntent().getSerializableExtra("usedBattery");
+		boolean solved =  (Boolean) getIntent().getSerializableExtra("boolean");
+		setContentView(R.layout.activity_finish);
+		batteryInfo =(TextView)findViewById(R.id.textView2);
+		stepsInfo =(TextView)findViewById(R.id.textView3);
+		comments =(TextView)findViewById(R.id.textView4);
+		batteryInfo.setText("BATTERY CONSUMED : "+batteryUsed+" UNITS");
+		stepsInfo.setText("LENGTH OF PATH : "+stepsTaken+" STEPS");
+		if(solved){
+			comments.setText("Congratulations! You Solved The Maze! Hooray!");
+		}
+		else{
+			comments.setText("Uh Oh! We've ran out of Battery!");
+		}
+		
+	}
+}

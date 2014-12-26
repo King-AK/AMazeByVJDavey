@@ -1,0 +1,185 @@
+package ui;
+
+import edu.wm.cs.cs301.amazebyvjdavey.R;
+import falstad.MazePanel;
+import falstad.Maze;
+import falstad.globals;
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
+import android.widget.ToggleButton;
+
+
+@SuppressLint("HandlerLeak")
+public class PlayActivity extends ActionBarActivity {
+	
+	private static final String LOGTAG = "PlayActivity";
+	private Maze maze;
+	MazePanel mazeView;
+	ProgressBar battery;
+	int level =2500;
+	public boolean solved=false;
+	
+	public Handler handler = new Handler(){
+		@Override
+		public void handleMessage(Message message) {
+			Log.v(LOGTAG,"handler called");
+		}
+	};
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		//Intent intent =getIntent();
+		super.onCreate(savedInstanceState);
+		Log.v(LOGTAG,"playing has begun!");
+		setContentView(R.layout.play_activity);
+		
+		//maze panel view is added in the XML file, it is controlled here
+		maze = globals.maze;
+		MazePanel panel = (MazePanel) findViewById(R.id.mazePanel);
+		panel.setBitmap();
+		maze.setPanel(panel);
+		maze.makeViews(panel);
+		mazeView = panel;
+		
+		
+		battery =(ProgressBar)findViewById(R.id.progressBar1);
+		battery.setMax(level);
+		battery.setProgress(level);
+		
+		maze.play = this;
+		
+		
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// TODO Auto-generated method stub
+		getMenuInflater().inflate(R.menu.play_activity_actions, menu);
+		return true;
+	}
+	
+	/*
+	 * Methods for movement. Called by a button push from play_activity.xml
+	 * Toasts and Logs only for now.
+	 */
+	public void rotateLeft (View v) {
+
+		Toast.makeText(getApplicationContext(), "Turning left", Toast.LENGTH_SHORT).show();
+		Log.v(LOGTAG, "rotateLeft");
+		if(maze.algorithm == 0){
+			maze.turnLeft();
+			level-=3;
+			battery.setProgress(level);
+		}
+		if(level<=0)
+			goToFinish();
+
+
+	}
+	public void rotateRight(View v){
+
+		Toast.makeText(getApplicationContext(), "Turning Right", Toast.LENGTH_SHORT).show();
+		Log.v(LOGTAG, "rotateRight");
+		if(maze.algorithm == 0){
+			maze.turnRight();
+			level-=3;
+			battery.setProgress(level);
+		}
+		if(level<=0)
+			goToFinish();
+
+	}
+	public void moveAhead (View v){
+	
+		Toast.makeText(getApplicationContext(), "Stepping Forward", Toast.LENGTH_SHORT).show();
+		Log.v(LOGTAG, "moveAhead");
+		if(maze.algorithm == 0){
+			maze.stepForward();
+			level-=5;
+			battery.setProgress(level);
+		}
+		if(level<=0)
+			goToFinish();
+		
+	}
+	public void moveBack (View v){
+
+		Toast.makeText(getApplicationContext(), "Stepping Backward", Toast.LENGTH_SHORT).show();
+		Log.v(LOGTAG, "moveBack");
+		if(maze.algorithm == 0){
+			maze.stepBackward();
+			level-=5;
+			battery.setProgress(level);
+		}
+		if(level<=0)
+			goToFinish();
+		
+	}
+	/* method for the toggle button. this will pause the game if the robot is traveling automatically. 
+	 * toasts and logs only for now
+	 */
+	public void pauseGame (View v){
+		// Is the toggle on?
+	    boolean on = ((ToggleButton) v).isChecked();
+	    
+	    if (on) {
+	    	Toast.makeText(getApplicationContext(), "Pausing Game", Toast.LENGTH_SHORT).show();
+			Log.v(LOGTAG, "pauseGame");
+	    } else {
+	    	Toast.makeText(getApplicationContext(), "Resuming Game", Toast.LENGTH_SHORT).show();
+			Log.v(LOGTAG, "pauseGame");
+	    }
+
+	}
+	/*
+	 * methods for the menu buttons. Currently only show toasts, but will show the overhead views of the Maze, Solution and Visible Walls 
+	 * when falstad code is ported.
+	 */
+	public void showMaze(MenuItem i){
+		Toast.makeText(getApplicationContext(), "Toggle Showing Maze Overhead View", Toast.LENGTH_SHORT).show();
+		Log.v(LOGTAG, "showingMaze");
+		maze.mapShow();
+	}
+	public void showSolution(MenuItem i){
+		Toast.makeText(getApplicationContext(), "Toggle Showing Maze Solution", Toast.LENGTH_SHORT).show();
+		Log.v(LOGTAG, "showingSolution");
+		maze.solShow();
+	}
+	public void showWalls(MenuItem i){
+		Toast.makeText(getApplicationContext(), "Toggle Showing Visible Walls", Toast.LENGTH_SHORT).show();
+		Log.v(LOGTAG, "showingWalls");
+		maze.mazeShow();
+	}
+	
+	/*
+	 * method for the onClick of the temporary shortcut button. When Falstad Code is ported, this will depend on 
+	 * battery level, broken status, and outside of maze status of the robot.
+	 *  Jumps to the FinishState.
+	 */
+	public void goToFinish() {
+		Intent intent = new Intent(this, FinishActivity.class);
+		intent.putExtra("stepsTaken", maze.steps);
+		intent.putExtra("usedBattery", 2500-level);
+		intent.putExtra("boolean",solved);
+		//intent.putExtra("mazebuilderAlgorithm", mazebuilderAlgorithm);
+		startActivity(intent);
+		Toast.makeText(getApplicationContext(), "Jumping to Finish", Toast.LENGTH_SHORT).show();
+		Log.v(LOGTAG, "Switching to FinishActivity");
+		this.finish();
+		Log.v(LOGTAG, "PlayActivity Finished");
+	}
+	
+
+}
